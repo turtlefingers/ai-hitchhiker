@@ -72,7 +72,7 @@ for(let i=0; i<17; i++){
 }
 async function getPoses(){
 
-  if(video && video.elt && net){
+  if(video && video.elt && video.loadedmetadata && net){
     
     _poses = await net.estimateMultiplePoses(video.elt, scaleFactor, flipHorizontal, outputStride);
     poses = [];
