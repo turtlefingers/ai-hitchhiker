@@ -431,11 +431,12 @@ let 씬번호 = 1;
 let AI분류 = "";
 
 function 초기설정(){
-  video = createCapture(VIDEO);
+  video = createCapture(VIDEO,function(){
+    ai_init();
+  });
   video.size(width, height);
   video.hide();
   textAlign(CENTER);
-  ai_init();
 }
 
 function 시작(){
