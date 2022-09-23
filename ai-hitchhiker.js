@@ -39,7 +39,7 @@ async function anim(timestamp) {
 
 // teachablemachine
 async function predict() {
-  if(video.loadedmetadata){
+  if(video && video.elt && video.loadedmetadata){
     // console.log("predict");
     const { pose, posenetOutput } = await model.estimatePose(video.elt);
     const prediction = await model.predict(posenetOutput);
@@ -72,7 +72,7 @@ for(let i=0; i<17; i++){
 }
 async function getPoses(){
 
-  if(net){
+  if(video && video.elt && net){
     
     _poses = await net.estimateMultiplePoses(video.elt, scaleFactor, flipHorizontal, outputStride);
     poses = [];
