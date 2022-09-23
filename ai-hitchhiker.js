@@ -438,8 +438,8 @@ function 초기설정(){
   ai_init();
 }
 
-function 출력(){
-    clear();
+function 시작(){
+  clear();
 
   if (기본설정.좌우반전) {
     translate(width, 0);
@@ -458,6 +458,14 @@ function 출력(){
   rect(width / 2, height / 2, width, height);
   
   if(기본설정.격자)drawGrid();
+}
+
+function 끝(){
+  for (var p of particles) {
+    p.run();
+  }
+  particles = particles.filter(p =>p.지속시간 > 0);
+  drawTrajectory();
   
   if(기본설정.관절표시){
     let points = getAllPoints();
@@ -465,12 +473,6 @@ function 출력(){
     fill(255);
     drawPoints(points);
   }
-
-  for (var p of particles) {
-    p.run();
-  }
-  particles = particles.filter(p =>p.지속시간 > 0);
-  drawTrajectory();
   
   if(기본설정.정보출력){
     fill(255);
