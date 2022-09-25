@@ -170,14 +170,14 @@ var ParticleSetting = function() {
   this.난기류 = 0.2;
   this.빈도 = 1;
 };
-var 파티클 = new ParticleSetting();
+var 입자설정 = new ParticleSetting();
 
-let f6 = gui.addFolder("파티클");
-f6.add(파티클, '지속시간', 1, 60).step(0.1).listen();
-f6.add(파티클, '중력', -1, 1).step(0.01).listen();
-f6.add(파티클, '생성위치흐트림', 0, 1).step(0.01).listen();
-f6.add(파티클, '난기류', 0, 1).step(0.01).listen();
-f6.add(파티클, '빈도', 1, 60).step(1).listen();
+let f6 = gui.addFolder("입자설정");
+f6.add(입자설정, '지속시간', 1, 60).step(0.1).listen();
+f6.add(입자설정, '중력', -1, 1).step(0.01).listen();
+f6.add(입자설정, '생성위치흐트림', 0, 1).step(0.01).listen();
+f6.add(입자설정, '난기류', 0, 1).step(0.01).listen();
+f6.add(입자설정, '빈도', 1, 60).step(1).listen();
 var particles = [];
 
 // Controller
@@ -249,9 +249,7 @@ function drawTrajectory(){
           y:traj[i].pos.y-traj[traj.length-1].pos.y
         };
         let 점 = new p5.Vector(traj[i].pos.x,traj[i].pos.y), 
-            연결점 = new p5.Vector(traj[i+1].pos.x,traj[i+1].pos.y), 
-            비 = i/(traj.length-1);
-        let 차 = p5.Vector.sub(연결점,점);
+            연결점 = new p5.Vector(traj[i+1].pos.x,traj[i+1].pos.y);
         
         let 관절 = [];
         for(let i=0; i<17; i++){
@@ -264,6 +262,9 @@ function drawTrajectory(){
             y:kp.position.y+d.y
           }});
         }
+
+        if(!점) 점 = new p5.Vector();
+        if(!연결점) 연결점 = new p5.Vector();
         
         push();
         traj[i].design(관절,점,연결점);
@@ -293,27 +294,27 @@ function 입자(callback=디자인,index=0){
     for(let pose of poses){
       if(pose.pose){
         let pos = pose.pose.keypoints[index].position;
-        if( (frameCount%파티클.빈도) == 0) particles.push(new Particle(index,pos,callback?callback:디자인));
+        if( (frameCount%입자설정.빈도) == 0) particles.push(new Particle(index,pos,callback?callback:디자인));
       }
     }
   }
 }
 
 /* 
-  파티클 관련 코드
+  입자 관련 코드
 */
 
 class Particle {
   constructor(index,pos,design) {
     let x = pos.x, y = pos.y;
     
-    var move = 10 * 파티클.생성위치흐트림;
+    var move = 10 * 입자설정.생성위치흐트림;
     this.pos = new p5.Vector(x + random(-move, move), y + random(-move, move));
 
     this.prevPosArray = [];
     this.vel = new p5.Vector();
     this.acc = new p5.Vector();
-    this.지속시간 = 10 + 5 * 파티클.지속시간;
+    this.지속시간 = 10 + 5 * 입자설정.지속시간;
     this.dying_speed = 1;
     this.design = design;
     this.index = index;
@@ -327,10 +328,10 @@ class Particle {
   update() {
     this.지속시간 -= this.dying_speed;
 
-    this.applyForce(new p5.Vector(0, 파티클.중력));
+    this.applyForce(new p5.Vector(0, 입자설정.중력));
 
-    if (파티클.난기류 > 0) {
-      var nforce = new p5.Vector(파티클.난기류 / 2, 0);
+    if (입자설정.난기류 > 0) {
+      var nforce = new p5.Vector(입자설정.난기류 / 2, 0);
       nforce.rotate(noise(this.pos.x * 0.01 + frameCount*0.01, this.pos.y * 0.01) * TWO_PI * 2);
       this.applyForce(nforce);
     }
@@ -362,6 +363,8 @@ class Particle {
               kp.position.x+(점.x-선택관절.x),
               kp.position.y+(점.y-선택관절.y)
             ));
+
+            if(!점 || (점 && !점.x)) 점 = new p5.Vector();
             this.design(관절,점,new p5.Vector());
           }
         }
