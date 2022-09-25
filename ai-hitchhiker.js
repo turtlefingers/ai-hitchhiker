@@ -369,7 +369,11 @@ class Particle {
           }
         }
       }
-      else this.design();
+      else this.design(
+        Array.from({length: 17}, () => new p5.Vector()),
+        this.pos?this.pos:new p5.Vector(),
+        new p5.Vector()
+      );
       
     pop();
   }
