@@ -104,7 +104,6 @@ async function getPoses(){
         }
       }
       if(poses.length > _poses.length)poses.splice(_poses.length,poses.length - _poses.length);
-      console.log(poses.length);
     }
   }
 }
