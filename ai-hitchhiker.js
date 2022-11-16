@@ -74,16 +74,39 @@ async function getPoses(){
 
   if(video && video.elt && video.loadedmetadata && net){
     
-    _poses = await net.estimateMultiplePoses(video.elt, scaleFactor, flipHorizontal, outputStride);
-    poses = [];
-    if(_poses.length>0){
-      관절 = _poses[0].keypoints;
+    _poses = 기본설정.멀티포즈 ? await net.estimateMultiplePoses(video.elt, scaleFactor, flipHorizontal, outputStride) : [ await net.estimateSinglePose(video.elt, scaleFactor, flipHorizontal, outputStride)];
+
+    if(poses.length == 0){
+      poses = [];
+      if(_poses.length>0){
+        관절 = _poses[0].keypoints;
+      }
+      for(const pose of _poses){
+        poses.push({pose});
+      }
     }
-    for(const pose of _poses){
-      poses.push({pose});
+    else{
+      if(_poses.length>0){
+        let keypoints = _poses[0].keypoints;
+        for(let i=0; i<keypoints.length; i++){
+          if(keypoints[i].score > 0.2)관절[i] = keypoints[i];
+        }
+      }
+      for(let i=0; i<_poses.length; i++){
+        let _pose = _poses[i];
+        if(poses[i] == undefined)poses[i] = {pose:_pose};
+        else{
+          let pose = poses[i].pose;
+          let keypoints = _poses[i].keypoints;
+          for(let i=0; i<keypoints.length; i++){
+            if(keypoints[i].score > 0.2)pose.keypoints[i] = keypoints[i];
+          }
+        }
+      }
+      if(poses.length > _poses.length)poses.splice(_poses.length,poses.length - _poses.length);
+      console.log(poses.length);
     }
   }
-  
 }
 
 posenet.load().then(function(net) {
@@ -104,18 +127,15 @@ function drawPoints(points) {
   }
 }
 
-function getAllPoints() {
+function getAllPoints(pose) {
   let points = [];
-  for (let i = 0; i < poses.length; i += 1) {
-    const pose = poses[i].pose;
-    if(pose){
-      for (let j = 0; j < pose.keypoints.length; j += 1) {
-        const keypoint = pose.keypoints[j];
-        if (keypoint.score > 0.2) {
-          points.push({
-            position: new p5.Vector(keypoint.position.x, keypoint.position.y)
-          });
-        }
+  if(pose){
+    for (let j = 0; j < pose.keypoints.length; j += 1) {
+      const keypoint = pose.keypoints[j];
+      if (keypoint.score > 0.2) {
+        points.push({
+          position: new p5.Vector(keypoint.position.x, keypoint.position.y)
+        });
       }
     }
   }
@@ -148,6 +168,7 @@ var Settings = function() {
   this.배경색 = "#000000";
   this.배경색_투명도 = 0;
   this.정보출력 = true;
+  this.멀티포즈 = true;
 };
 
 var 기본설정 = new Settings();
@@ -159,6 +180,7 @@ f1.add(기본설정, '좌우반전').listen();
 f1.addColor(기본설정, '배경색').listen();
 f1.add(기본설정, '배경색_투명도', 0, 255).step(1).listen();
 f1.add(기본설정, '정보출력').listen();
+f1.add(기본설정, '멀티포즈').listen();
 
 // Controller
 var ParticleSetting = function() {
@@ -437,10 +459,28 @@ let poses = [];
 let 씬번호 = 1;
 let AI분류 = "";
 
-function 초기설정(){
-  video = createCapture(VIDEO,function(){
-    ai_init();
-  });
+function 초기설정(화면크롭=false){
+  if(화면크롭){
+    resizeCanvas(480, 480);
+    video = createCapture({
+      video: {
+        mandatory: {
+          minWidth: 240,
+          minHeight: 240,
+          maxWidth: 240,
+          maxHeight: 240
+        }
+      },
+      audio: false
+    },function(){
+      ai_init();
+    });
+  }
+  else{
+    video = createCapture(VIDEO,function(){
+      ai_init();
+    });
+  }
   video.size(width, height);
   video.hide();
   textAlign(CENTER);
@@ -476,10 +516,12 @@ function 끝(){
   drawTrajectory();
   
   if(기본설정.관절표시){
-    let points = getAllPoints();
-    stroke(255);
-    fill(255);
-    drawPoints(points);
+    for (let i = 0; i < poses.length; i += 1) {
+      let points = getAllPoints(poses[i].pose);
+      stroke(255);
+      fill(255);
+      drawPoints(points);
+    }
   }
   
   if(기본설정.정보출력){
