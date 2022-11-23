@@ -76,7 +76,7 @@ async function getPoses(){
     
     _poses = 기본설정.멀티포즈 ? await net.estimateMultiplePoses(video.elt, scaleFactor, flipHorizontal, outputStride) : [ await net.estimateSinglePose(video.elt, scaleFactor, flipHorizontal, outputStride)];
 
-    if(poses.length == 0){
+    if(true /*poses.length == 0*/){
       poses = [];
       if(_poses.length>0){
         관절 = _poses[0].keypoints;
@@ -85,26 +85,26 @@ async function getPoses(){
         poses.push({pose});
       }
     }
-    else{
-      if(_poses.length>0){
-        let keypoints = _poses[0].keypoints;
-        for(let i=0; i<keypoints.length; i++){
-          if(keypoints[i].score > 0.2)관절[i] = keypoints[i];
-        }
-      }
-      for(let i=0; i<_poses.length; i++){
-        let _pose = _poses[i];
-        if(poses[i] == undefined)poses[i] = {pose:_pose};
-        else{
-          let pose = poses[i].pose;
-          let keypoints = _poses[i].keypoints;
-          for(let i=0; i<keypoints.length; i++){
-            if(keypoints[i].score > 0.2)pose.keypoints[i] = keypoints[i];
-          }
-        }
-      }
-      if(poses.length > _poses.length)poses.splice(_poses.length,poses.length - _poses.length);
-    }
+    // else{
+    //   if(_poses.length>0){
+    //     let keypoints = _poses[0].keypoints;
+    //     for(let i=0; i<keypoints.length; i++){
+    //       if(keypoints[i].score > 0.2)관절[i] = keypoints[i];
+    //     }
+    //   }
+    //   for(let i=0; i<_poses.length; i++){
+    //     let _pose = _poses[i];
+    //     if(poses[i] == undefined)poses[i] = {pose:_pose};
+    //     else{
+    //       let pose = poses[i].pose;
+    //       let keypoints = _poses[i].keypoints;
+    //       for(let i=0; i<keypoints.length; i++){
+    //         if(keypoints[i].score > 0.2)pose.keypoints[i] = keypoints[i];
+    //       }
+    //     }
+    //   }
+    //   if(poses.length > _poses.length)poses.splice(_poses.length,poses.length - _poses.length);
+    // }
   }
 }
 
