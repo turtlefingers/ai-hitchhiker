@@ -47,5 +47,6 @@ function draw() {
 
 /* 아래에 디자인을 위한 함수를 추가해주세요 */
   function 동그라미(관절,점){
-      ellipse(점.x,점.y, 50,50);
+    fill(255);
+    ellipse(점.x,점.y, 50,50);
   }
