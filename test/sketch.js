@@ -32,6 +32,7 @@ function keyPressed() {
 
 function setup() {
   createCanvas(640, 480);
+  기본설정.포즈분류 = false;
   초기설정();
 }
 
